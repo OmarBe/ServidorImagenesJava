@@ -4,16 +4,20 @@
  */
 package try3;
 
-import java.io.DataInputStream;
+import java.io.File;
+import java.io.ObjectInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * @author Leyer
  */
-class Servidor extends ServerSocket implements Runnable{
+class Servidor extends ServerSocket implements Runnable, Serializable{
     private boolean running = false;
     
     public Servidor(int port, int backlog, InetAddress bindAddr)
@@ -29,13 +33,13 @@ class Servidor extends ServerSocket implements Runnable{
         
         public static final int DEFAULT_BUFFER_SIZE = 1024*5;
         
-        private DataInputStream dataInputStream;
+        private ObjectInputStream dataInputStream;
         private Socket socket;
         
         public Connection(Socket socket){
             try {
                 this.socket=socket;
-                dataInputStream=new DataInputStream(socket.getInputStream());
+                dataInputStream=new ObjectInputStream(socket.getInputStream());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -43,12 +47,20 @@ class Servidor extends ServerSocket implements Runnable{
         @Override
         public void run(){
             try{
-                String fileName = dataInputStream.readUTF();
+                //String fileName = dataInputStream.readUTF();
+                Document doc = (Document) dataInputStream.readObject();
+                String fileName = doc.getDocument().getName();
                 System.out.println(">>Receiving file: "+fileName);
                 System.out.println(">>Please wait...");
-                FileOutputStream fileOutputStream=new FileOutputStream("D:/"+fileName);
+                File folder = new File("D://"+doc.getCarrera()+"/"+doc.getMatricula()+"/");
+                if(!folder.exists()){
+                    folder.mkdirs();
+                    System.out.println("No existe!!");
+                } else 
+                    System.out.println("Existe!!");
+                FileOutputStream fileOutputStream=new FileOutputStream("D://"+doc.getCarrera()+"/"+doc.getMatricula()+"/"+fileName);
                 byte b[]=new byte[DEFAULT_BUFFER_SIZE];
-                int len=0;
+                int len;
                 System.out.println(dataInputStream);
                 while((len=dataInputStream.read(b))>0){
                     fileOutputStream.write(b, 0, len);
@@ -58,6 +70,8 @@ class Servidor extends ServerSocket implements Runnable{
                 System.out.println(">>Task completed!");
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }finally{
                 try {
                     socket.close();
@@ -72,10 +86,9 @@ class Servidor extends ServerSocket implements Runnable{
     }
     @Override
     public void run() {
-        
+        System.out.println(">Waiting for connections...");
         Socket socket=null;
         while(running){
-            System.out.println(">Waiting for connections...");
             try {
                 socket=accept();
                 System.out.println(">>New Connection Received: "+socket.getInetAddress());

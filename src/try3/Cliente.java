@@ -10,14 +10,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-class Cliente extends Socket implements Runnable{
+class Cliente extends Socket implements Runnable, Serializable{
     public static final int DEFAULT_BUFFER_SIZE = 1024;
     
-    private DataOutputStream dataOutputStream;
+    private ObjectOutputStream dataOutputStream;
     
     private FileInputStream fileInputStream;
     public Cliente(InetAddress address,int port) throws IOException{
@@ -25,20 +29,25 @@ class Cliente extends Socket implements Runnable{
         initStreams(getInputStream(), getOutputStream());
     }
     public void initStreams(InputStream inputStream,OutputStream outputStream){
-        dataOutputStream=new DataOutputStream(outputStream);
+        try {
+            dataOutputStream=new ObjectOutputStream(outputStream);
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    public void upFile(File file){
-        if(file.exists()&&file.length()>0){
+    public void upFile(Document file){
+        if(file.getDocument().exists()&&file.getDocument().length()>0){
             try {
-                fileInputStream=new FileInputStream(file);
-                dataOutputStream.writeUTF(file.getName());
+                fileInputStream=new FileInputStream(file.getDocument());
+                //dataOutputStream.writeUTF(file.getDocument().getName());
+                dataOutputStream.writeObject(file);
                 dataOutputStream.flush();
                 new Thread(this).start();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            } 
         }
     }
     @Override

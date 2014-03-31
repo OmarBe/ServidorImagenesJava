@@ -20,7 +20,7 @@ public class Transfers{
                 if( fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
                 {
                     System.out.println(fc.getSelectedFile().getAbsolutePath());
-                    new Cliente(InetAddress.getByName("127.0.0.1"), 8081).upFile(fc.getSelectedFile());
+                    new Cliente(InetAddress.getByName("127.0.0.1"), 8081).upFile(new Document("",0,fc.getSelectedFile()));
                 }
             }
         } catch (UnknownHostException e) {
