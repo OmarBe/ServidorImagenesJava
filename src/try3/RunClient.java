@@ -25,7 +25,7 @@ public class RunClient {
                 
                 System.out.println(fc.getSelectedFile().getAbsolutePath());
                 Document doc = new Document("ISW",274367,fc.getSelectedFile());
-                new Cliente(InetAddress.getByName("25.29.181.82"), 8081).upFile(doc);
+                new Cliente(InetAddress.getByName("127.0.0.1"), 8081).requestFile(doc);
             }
         }
         catch (IOException ex) {
