@@ -38,10 +38,11 @@ class Cliente extends Socket implements Runnable, java.io.Serializable{
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public void upFile(Document file){
+    public void upFile(Document file, String tipo){
         if(file.getDocument().exists()&&file.getDocument().length()>0){
             try {
                 dataOutputStream.writeUTF("u");
+                dataOutputStream.writeUTF(tipo);
                 fileInputStream=new FileInputStream(file.getDocument());
                 //dataOutputStream.writeUTF(file.getDocument().getName());
                 dataOutputStream.writeObject(file);
@@ -65,12 +66,10 @@ class Cliente extends Socket implements Runnable, java.io.Serializable{
                 dataOutputStream.flush();
                 int width = (int) dataInputStream.readObject();
                 int height = (int) dataInputStream.readObject();
-                
-                int data [][] = (int [][]) dataInputStream.readObject();
                 BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                 for (int w=0; w<width; w++)
                     for (int h=0; h<height; h++)
-                        bi.setRGB(w,h,data[w][h]);
+                        bi.setRGB(w,h,dataInputStream.readInt());
                 return bi;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -80,6 +79,32 @@ class Cliente extends Socket implements Runnable, java.io.Serializable{
                 Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        return null;
+    }
+    
+    public BufferedImage requestFile(String carr, String mat, String name){
+        
+        try {
+            dataOutputStream.writeUTF("r");
+            String path = carr+"/"+mat+"/"+name;
+            //dataOutputStream.writeUTF(file.getDocument().getName());
+            dataOutputStream.writeObject(path);
+            dataOutputStream.flush();
+            int width = (int) dataInputStream.readObject();
+            int height = (int) dataInputStream.readObject();
+            BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            for (int w=0; w<width; w++)
+                for (int h=0; h<height; h++)
+                    bi.setRGB(w,h,dataInputStream.readInt());
+            return bi;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         return null;
     }
     @Override

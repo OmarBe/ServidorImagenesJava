@@ -4,25 +4,19 @@
  */
 package try3;
 
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.Adler32;
-import java.util.zip.GZIPOutputStream;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 /**
  * @author Leyer
  */
@@ -59,9 +53,8 @@ class Servidor extends ServerSocket implements Runnable{
             try{
                 dataOutputStream=new ObjectOutputStream(socket.getOutputStream());
                 if(dataInputStream.readUTF().equals("u")){
-                    //String fileName = dataInputStream.readUTF();
+                    String fileName = dataInputStream.readUTF();
                     Document doc = (Document) dataInputStream.readObject();
-                    String fileName = doc.getDocument().getName();
                     System.out.println(">>Receiving file: "+fileName);
                     System.out.println(">>Please wait...");
                     File folder = new File("D://"+doc.getCarrera()+"/"+doc.getMatricula()+"/");
@@ -70,7 +63,12 @@ class Servidor extends ServerSocket implements Runnable{
                         System.out.println("No existe!!");
                     } else
                         System.out.println("Existe!!");
-                    FileOutputStream fileOutputStream=new FileOutputStream("D://"+doc.getCarrera()+"/"+doc.getMatricula()+"/"+fileName);
+                    String extension = "";
+                    int i = doc.getDocument().getName().lastIndexOf('.');
+                    if (i >= 0) {
+                        extension = doc.getDocument().getName().substring(i+1);
+                    }
+                    FileOutputStream fileOutputStream=new FileOutputStream("D://"+doc.getCarrera()+"/"+doc.getMatricula()+"/"+fileName+"."+extension);
                     byte b[]=new byte[DEFAULT_BUFFER_SIZE];
                     int len;
                     System.out.println(dataInputStream);
@@ -81,7 +79,7 @@ class Servidor extends ServerSocket implements Runnable{
                     fileOutputStream.close();
                     System.out.println(">>Task completed!");
                 } else {
-                    byte compressedData[];
+                    System.out.println(">>>Initializing transfer...");
                     String path = (String) dataInputStream.readObject();
                     ImageIcon in = new ImageIcon(Toolkit.getDefaultToolkit().createImage("D://"+path));
                     BufferedImage bi = new BufferedImage(in.getIconWidth(), in.getIconHeight(), BufferedImage.TYPE_INT_RGB);
@@ -96,11 +94,13 @@ class Servidor extends ServerSocket implements Runnable{
                     
                     for (int w=0; w<width; w++)
                         for (int h=0; h<height; h++)
-                            data[w][h] = bi.getRGB(w,h);
+                            //data[w][h] = bi.getRGB(w,h);
+                            dataOutputStream.writeInt(bi.getRGB(w,h));
                     try {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        //ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         //dataOutputStream = new ObjectOutputStream(new GZIPOutputStream(baos, 512*1024));
-                        dataOutputStream.writeObject(data);
+                        //dataOutputStream.writeObject(data);
+                        System.out.println(">>>>Done");
                         
                     } catch (Exception e) {
                         e.printStackTrace();

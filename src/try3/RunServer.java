@@ -17,7 +17,7 @@ public class RunServer {
     public static void main (String [] args){
         Servidor server;
         try {
-            server = new Servidor(8081, 500, InetAddress.getByName("127.0.0.1"));
+            server = new Servidor(8081, 500, InetAddress.getByName("25.29.181.82"));
             server.init();
         } catch (IOException ex) {
             Logger.getLogger(RunServer.class.getName()).log(Level.SEVERE, null, ex);

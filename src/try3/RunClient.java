@@ -29,13 +29,14 @@ public class RunClient {
             {
                 
                 System.out.println(fc.getSelectedFile().getAbsolutePath());
-                Document doc = new Document("ISW",274367,fc.getSelectedFile());
-                BufferedImage bi = new Cliente(InetAddress.getByName("127.0.0.1"), 8081).requestFile(doc);
-                JFrame frame = new JFrame();
-                frame.getContentPane().setLayout(new FlowLayout());
-                frame.getContentPane().add(new JLabel(new ImageIcon(bi)));
-                frame.pack();
-                frame.setVisible(true);
+                Document doc = new Document("MD",274367,fc.getSelectedFile());
+                //BufferedImage bi = new Cliente(InetAddress.getByName("25.29.181.82"), 8081).requestFile(doc);
+                new Cliente(InetAddress.getByName("25.29.181.82"), 8081).upFile(doc,"Cabezonas");
+                //JFrame frame = new JFrame();
+                //frame.getContentPane().setLayout(new FlowLayout());
+                //frame.getContentPane().add(new JLabel(new ImageIcon(bi)));
+                //frame.pack();
+                //frame.setVisible(true);
             }
         }
         catch (IOException ex) {
